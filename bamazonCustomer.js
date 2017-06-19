@@ -1,4 +1,5 @@
 var mysql = require('mysql');
+var inquirer = require('inquirer'); 
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -14,6 +15,80 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err){
 	if(err) throw err;
-  console.log("connected as id "+ connection.threadId);
+  	startShopping();
 });
 
+function startShopping(){
+	inquirer.prompt ({
+		name: "user",
+		type: "input",
+		message: "Do you want to shop or work?"
+		}).then(function(anwser){
+      		if (anwser.user.toLowerCase() === "shop") {
+        		itemsForSale();
+      		} 
+      		else if (anwser.user.toLowerCase() === "work") {
+        		manager();
+      		} 
+      		else {
+      			console.log('Enter either shop or work');
+      		}
+		});
+}
+
+// Display all items available for sale : id, name, price
+function itemsForSale(){
+	// gets all the items in the products table from the database
+	connection.query("SELECT * FROM products", function(err, result){
+		// loops through the results from the mySQL database
+		for (var i = 0; i < result.length; i++){
+			// logs the item_id, product_name & price
+			console.log("Item ID: " + result[i].item_id + 
+				"\n Item: " + result[i].product_name + 
+				"\n Price: " + result[i].price + 
+				"\n -------------------------------");
+		}
+	// allows the buyer prompt to start after the items are listed
+	buyer();
+	});
+}; 
+
+// prompt user 
+// two options: 
+	// 1. ID of the product they would like to buy?
+	// 2. How many units would you like to buy? 
+function buyer(){
+	inquirer.prompt([
+	{
+		type: 'input',
+		name: 'id',
+		message: 'What is the Item ID of the product you would like to buy?'
+	},
+	{
+		type: 'input',
+		name: 'units',
+		message: 'How many units would you like to buy?'
+	}
+	]).then(function(anwser){
+		// get the item_id entered and check it with the item_id in the database
+		connection.query("SELECT * FROM products WHERE item_id=?", [anwser.id], function(err, result){
+			for (var i = 0; i < result.length; i++){
+				console.log("Item ID: " + result[i].item_id + " | Department: " + result[i].department_name + " | Product: " + result[i].product_name + " | Price: " + result[i].price);
+			}
+		});
+		// get units entered and check if there is enough to purchase
+		checkInventory();
+	}
+	);
+	
+}
+
+// Check to see if we have enough of the product for them to buy
+	// 1. if not return Insufficient quantity!
+		// Prevent order from going through
+	// 2. Have enough complete order 
+		// Update mySQL Database
+		// Show total cost of purchase 
+function checkInventory(){
+
+}
