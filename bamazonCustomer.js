@@ -74,21 +74,19 @@ function buyer(){
 		connection.query("SELECT * FROM products WHERE item_id=?", [anwser.id], function(err, result){
 			for (var i = 0; i < result.length; i++){
 				console.log("Item ID: " + result[i].item_id + " | Department: " + result[i].department_name + " | Product: " + result[i].product_name + " | Price: " + result[i].price);
+				// Check to see if we have enough of the product for them to buy
+					// 1. if not return Insufficient quantity!
+					// Prevent order from going through
+				if (anwser.units > result[i].stock_quantity){
+					console.log('Insufficient quantity! ' + 'Here is the quantity available for purchase: ' + result[i].stock_quantity);
+				}
+				// 2. Have enough complete order 
+					// Update mySQL Database
+					// Show total cost of purchase 
+				else {
+
+				}
 			}
 		});
-		// get units entered and check if there is enough to purchase
-		checkInventory();
-	}
-	);
-	
-}
-
-// Check to see if we have enough of the product for them to buy
-	// 1. if not return Insufficient quantity!
-		// Prevent order from going through
-	// 2. Have enough complete order 
-		// Update mySQL Database
-		// Show total cost of purchase 
-function checkInventory(){
-
+	});	
 }
