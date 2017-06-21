@@ -84,9 +84,24 @@ function buyer(){
 					// Update mySQL Database
 					// Show total cost of purchase 
 				else {
+					// connection.query("SELECT * FROM products WHERE item_id=?", [anwser.id], function(err, result){
+					// for (var i = 0; i < result.length; i++){
+					// 	console.log(result[i]);
 
-				}
-			}
-		});
-	});	
+					// 	console.log("Totat Cost: " + (result[i].price * anwser.units));
+					// }
+
+
+
+				connection.query("UPDATE products SET units =?", [(result[i].units - answer.units)] + "WHERE item_id=?", [answer.id], function(err, result){
+						// var newUnits = (result[i].units - anwser.units);
+						console.log("Totat Cost: " + (result[i].price * anwser.units));
+					});
+					};
+				
+			
+		};
+	
+});
+});
 }
