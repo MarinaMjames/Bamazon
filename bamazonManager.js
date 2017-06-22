@@ -57,6 +57,7 @@ function itemsForSale(){
 				"\n Price: " + result[i].price + 
 				"\n -------------------------------");
 		}
+		manager();
 	});
 };
 
@@ -71,6 +72,7 @@ connection.query("SELECT * FROM products WHERE stock_quantity<=5", function(err,
 				"\n Price: " + result[i].price + 
 				"\n -------------------------------");
 		}
+		manager();
 	}); 
 }
 
@@ -102,39 +104,45 @@ inquirer.prompt([
 });
 }
 
+// NEED TO FIX UPDATES 
+
 function newProduct(){
 	inquirer.prompt([
 	{
-		type: 'input',
 		name: 'product_name',
+		type: 'input',
 		message: 'What item would you like to add?'
 	}, 
 	{
-		type: 'input',
 		name: 'department_name',
+		type: 'input',
 		message: 'What department is this item in?'
 	},
 	{
-		type: 'input',
 		name: 'price',
+		type: 'input',
 		message: 'How much does this item cost?'
 	},
 	{
-		type: 'input',
 		name: 'stock_quantity',
+		type: 'input',
 		message: 'How many would you like to stock?'
 	}
 	]).then(function(anwser){
-		connection.query("INSERT INTO products(product_name, department_name, price, stock_quantity) VALUES ()", function(err, result){
-		// loops through the results from the mySQL database
-		for (var i = 0; i < result.length; i++){
-
-			// logs the item_id, product_name & price
-			console.log("Item ID: " + result[i].item_id + 
-				"\n Item: " + result[i].product_name + 
-				"\n Price: " + result[i].price + 
-				"\n -------------------------------");
-		}
+		connection.query(
+        "INSERT INTO auctions SET ?",
+        {
+          product_name: answer.product_name,
+          department_name: answer.department_name,
+          price: answer.price,
+          stock_quantity: answer.stock_quantity
+        },
+        function(err) {
+          if (err) throw err;
+          console.log("Your item was now added to the Inventory!");
+          // re-prompt the user for if they want to bid or post
+          itemsForSale();
+        }
+      );
 	});
-}
-}
+};

@@ -28,10 +28,11 @@ function startShopping(){
         		itemsForSale();
       		} 
       		else if (anwser.user.toLowerCase() === "work") {
-        		manager();
+        		console.log("If you would like to work please run node bamazonManager.js. Thank you!");
       		} 
       		else {
       			console.log('Enter either shop or work');
+      			startShopping();
       		}
 		});
 }
@@ -46,6 +47,7 @@ function itemsForSale(){
 			console.log("Item ID: " + result[i].item_id + 
 				"\n Item: " + result[i].product_name + 
 				"\n Price: " + result[i].price + 
+				"\n Stock Qty: " + result[i].stock_quantity +
 				"\n -------------------------------");
 		}
 	// allows the buyer prompt to start after the items are listed
@@ -69,39 +71,57 @@ function buyer(){
 		name: 'units',
 		message: 'How many units would you like to buy?'
 	}
-	]).then(function(anwser){
+	]).then(function(buyerAnwser){
+		var buyerID = buyerAnwser.id; 
+		var buyerUnits = buyerAnwser.units;
+
 		// get the item_id entered and check it with the item_id in the database
-		connection.query("SELECT * FROM products WHERE item_id=?", [anwser.id], function(err, result){
-			for (var i = 0; i < result.length; i++){
-				console.log("Item ID: " + result[i].item_id + " | Department: " + result[i].department_name + " | Product: " + result[i].product_name + " | Price: " + result[i].price);
-				// Check to see if we have enough of the product for them to buy
-					// 1. if not return Insufficient quantity!
-					// Prevent order from going through
-				if (anwser.units > result[i].stock_quantity){
-					console.log('Insufficient quantity! ' + 'Here is the quantity available for purchase: ' + result[i].stock_quantity);
-				}
+				connection.query("UPDATE products SET ? WHERE ?", 
+					[{
+						stock_quantity: buyerUnits
+					},
+					{
+						item_id: buyerID
+					}], function(err, result){
+						// console.log("Your transaction went through. You spent: $" + (price * buyerUnits));
+						itemsForSale();
+					});
+});
+}
+
+
+
+
+
+		// 		// Check to see if we have enough of the product for them to buy
+		// 			// 1. if not return Insufficient quantity!
+		// 			// Prevent order from going through
+		// 		if (anwser.units > result[i].stock_quantity){
+		// 			console.log('Insufficient quantity! ' + 'Here is the quantity available for purchase: ' + result[i].stock_quantity);
+		// 		}
 				// 2. Have enough complete order 
 					// Update mySQL Database
 					// Show total cost of purchase 
-				else {
-					// connection.query("SELECT * FROM products WHERE item_id=?", [anwser.id], function(err, result){
-					// for (var i = 0; i < result.length; i++){
-					// 	console.log(result[i]);
-
-					// 	console.log("Totat Cost: " + (result[i].price * anwser.units));
-					// }
-
-
-
-				connection.query("UPDATE products SET units =?", [(result[i].units - answer.units)] + "WHERE item_id=?", [answer.id], function(err, result){
-						// var newUnits = (result[i].units - anwser.units);
-						console.log("Totat Cost: " + (result[i].price * anwser.units));
-					});
-					};
+        		// else {
+          // 			connection.query("UPDATE products SET ? WHERE ?",
+          //   		[{
+          //      			stock_quantity: (result[i].units - answer.units)
+          //     		},
+          //     		{
+          //       		id: result[i].id
+          //     		}],
+          //   		function(error) {
+          //     			if (error) throw err;
+          //     			console.log("Your transaction went through. You spent: $" + (result[i].price * anwser.units));
+          //   		}
+          			// );
+  //       		}
+  //     		});
+  // });
+// }
 				
 			
-		};
-	
-});
-});
-}
+// 		});
+// 			});
+
+// }
