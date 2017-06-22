@@ -55,6 +55,7 @@ function itemsForSale(){
 			console.log("Item ID: " + result[i].item_id + 
 				"\n Item: " + result[i].product_name + 
 				"\n Price: " + result[i].price + 
+				"\n Stock Quantity: " + result[i].stock_quantity +
 				"\n -------------------------------");
 		}
 		manager();
@@ -89,18 +90,18 @@ inquirer.prompt([
 		message: 'How many would you like to stock?'
 	}
 	]).then(function(anwser){
+		var stock = anwser.stock_quantity;
+		var buyerID = anwser.item_id
 		// console.log(anwser.stock_quantity);
-		connection.query("UPDATE products SET stock_quantity=?", [result[i].stock_quantity + anwser.stock_quantity], "WHERE item_id=?", [anwser.item_id], function(err, result){
-		// loops through the results from the mySQL database
-		for (var i = 0; i < result.length; i++){
-
-			// logs the item_id, product_name & price
-			console.log("Item ID: " + result[i].item_id + 
-				"\n Item: " + result[i].product_name + 
-				"\n Price: " + result[i].price + 
-				"\n -------------------------------");
-		}
-	});
+		connection.query("UPDATE products SET ? WHERE ?", [{
+						stock_quantity: stock
+					},
+					{
+						item_id: buyerID
+					}], function(err){
+						console.log("Item ID: " + buyerID + " was updated with a Stock Quantity of " + stock);
+						itemsForSale();
+					});
 });
 }
 
@@ -109,40 +110,45 @@ inquirer.prompt([
 function newProduct(){
 	inquirer.prompt([
 	{
-		name: 'product_name',
 		type: 'input',
+		name: 'product_name',
 		message: 'What item would you like to add?'
 	}, 
 	{
-		name: 'department_name',
 		type: 'input',
+		name: 'department_name',
 		message: 'What department is this item in?'
 	},
 	{
-		name: 'price',
 		type: 'input',
+		name: 'price',
 		message: 'How much does this item cost?'
 	},
 	{
-		name: 'stock_quantity',
 		type: 'input',
+		name: 'stock_quantity',
 		message: 'How many would you like to stock?'
 	}
 	]).then(function(anwser){
-		connection.query(
-        "INSERT INTO auctions SET ?",
+		var itemName = answer.product_name;
+		var deptName = answer.department_name;
+		var price = answer.price;
+		var stock = answer.stock_quantity;
+
+		connection.query([
+        "INSERT INTO products VALUES ?",
         {
-          product_name: answer.product_name,
-          department_name: answer.department_name,
-          price: answer.price,
-          stock_quantity: answer.stock_quantity
-        },
-        function(err) {
-          if (err) throw err;
-          console.log("Your item was now added to the Inventory!");
-          // re-prompt the user for if they want to bid or post
-          itemsForSale();
+          product_name: itemName,
+ 
+          department_name: deptName,
+   
+          price: price,
+       
+          stock_quantity: stock
         }
-      );
+        ], function(err, result){
+						// console.log("Your transaction went through. You spent: $" + (price * buyerUnits));
+						itemsForSale();
+					});
 	});
 };
