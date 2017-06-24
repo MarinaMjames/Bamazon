@@ -73,55 +73,26 @@ function buyer(){
 	}
 	]).then(function(buyerAnwser){
 		var buyerID = buyerAnwser.id; 
-		var buyerUnits = buyerAnwser.units;
+		var buyerUnits = parseInt(buyerAnwser.units);
 
+		connection.query("SELECT * FROM products WHERE item_id=?", [buyerID], function (err, result){
+			for (var i = 0; i < result.length; i ++){
+				var itemUnits = parseInt(result[i].stock_quantity);
+				var firstPrice = (result[i].price).toFixed(2);
+				var price = parseInt(firstPrice);
+				var newStock = itemUnits - buyerUnits; 
+
+			}
 		// get the item_id entered and check it with the item_id in the database
 				connection.query("UPDATE products SET ? WHERE ?", 
 					[{
-						stock_quantity: buyerUnits
+						stock_quantity: newStock
 					},
 					{
 						item_id: buyerID
 					}], function(err, result){
-						// console.log("Your transaction went through. You spent: $" + (price * buyerUnits));
-						itemsForSale();
+						console.log("You spent a total of: " + (buyerUnits * price) + "! Thank you for Shopping on Bamazon!");
 					});
+		});
 });
 }
-
-
-
-
-
-		// 		// Check to see if we have enough of the product for them to buy
-		// 			// 1. if not return Insufficient quantity!
-		// 			// Prevent order from going through
-		// 		if (anwser.units > result[i].stock_quantity){
-		// 			console.log('Insufficient quantity! ' + 'Here is the quantity available for purchase: ' + result[i].stock_quantity);
-		// 		}
-				// 2. Have enough complete order 
-					// Update mySQL Database
-					// Show total cost of purchase 
-        		// else {
-          // 			connection.query("UPDATE products SET ? WHERE ?",
-          //   		[{
-          //      			stock_quantity: (result[i].units - answer.units)
-          //     		},
-          //     		{
-          //       		id: result[i].id
-          //     		}],
-          //   		function(error) {
-          //     			if (error) throw err;
-          //     			console.log("Your transaction went through. You spent: $" + (result[i].price * anwser.units));
-          //   		}
-          			// );
-  //       		}
-  //     		});
-  // });
-// }
-				
-			
-// 		});
-// 			});
-
-// }
