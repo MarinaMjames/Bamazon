@@ -90,11 +90,21 @@ inquirer.prompt([
 		message: 'How many would you like to stock?'
 	}
 	]).then(function(anwser){
-		var stock = anwser.stock_quantity;
+		var stock = parseInt(anwser.stock_quantity);
 		var buyerID = anwser.item_id
 		// console.log(anwser.stock_quantity);
+		connection.query("SELECT * FROM products WHERE item_id=?", [buyerID], function (err, result){
+			for (var i = 0; i < result.length; i ++){
+				var oldStock = parseInt(result[i].stock_quantity);
+				var newStock = oldStock + stock; 
+				console.log("Old Stock: " + oldStock);
+				console.log("Answer to add: " + stock);
+				console.log("New total Stock: " + newStock);
+
+			}
+		// });
 		connection.query("UPDATE products SET ? WHERE ?", [{
-						stock_quantity: stock
+						stock_quantity: newStock
 					},
 					{
 						item_id: buyerID
@@ -103,9 +113,10 @@ inquirer.prompt([
 						itemsForSale();
 					});
 });
+});
 }
 
-// NEED TO FIX UPDATES 
+
 
 function newProduct(){
 	inquirer.prompt([
